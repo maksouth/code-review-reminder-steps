@@ -9,7 +9,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@slack/bolt": "^3.19.0"
+    "@slack/bolt": "^3.19.0",
+    "moment-timezone": "^0.5.45"
   },
   "devDependencies": {
     "serverless-offline": "^13.6.0"
