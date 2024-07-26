@@ -10,5 +10,8 @@
   "description": "",
   "dependencies": {
     "@slack/bolt": "^3.19.0"
+  },
+  "devDependencies": {
+    "serverless-offline": "^13.6.0"
   }
 }

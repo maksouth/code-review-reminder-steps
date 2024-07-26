@@ -1,10 +1,13 @@
-const { App } = require('@slack/bolt');
+const { App, AwsLambdaReceiver } = require('@slack/bolt');
+
+const awsLambdaReceiver = new AwsLambdaReceiver({
+    signingSecret: process.env.SLACK_SIGNING_SECRET,
+});
 
 // Initializes your app with your bot token and app token
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
-    socketMode: true,
-    appToken: process.env.SLACK_APP_TOKEN
+    receiver: awsLambdaReceiver,
 });
 
 // Listens to incoming messages that contain "hello"
@@ -38,9 +41,7 @@ app.action('button_click', async ({ body, ack, say }) => {
     await say(`<@${body.user.id}> clicked the button`);
 });
 
-(async () => {
-    // Start your app
-    await app.start(process.env.PORT || 3000);
-
-    console.log('⚡️ Bolt app is running!');
-})();
+module.exports.handler = async (event, context, callback) => {
+    const handler = await awsLambdaReceiver.start();
+    return handler(event, context, callback);
+}

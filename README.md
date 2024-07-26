@@ -1,7 +1,34 @@
 # Getting Started ⚡️ Bolt for JavaScript
-> Slack app example from 📚 [Getting started with Bolt for JavaScript tutorial][1]
+
+## Step 2
+Export new environment variable
+```zsh
+export SLACK_SIGNING_SECRET=<your-signing-secret>
+```
+install Serverless dependencies
+```zsh  
+npm install --save-dev serverless-offline
+```
+
+Run app locally
+- Start Serverless offline
+```zsh
+serverless offline --noPrependStageInUrl
+```
+
+- Start ngrok
+```zsh
+ngrok http 3000
+```
+
+Deploy app to AWS Lambda
+```zsh
+serverless deploy
+```
 
 ## Overview
+
+> Slack app example from 📚 [Getting started with Bolt for JavaScript tutorial][1]
 
 This is a Slack app built with the [Bolt for JavaScript framework][2] that showcases
 responding to events and interactive buttons.
