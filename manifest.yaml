@@ -9,6 +9,7 @@ oauth_config:
     bot:
       - chat:write
       - channels:history
+      - links:read
 settings:
   event_subscriptions:
     request_url: https://<your-url>.amazonaws.com/dev/slack/events

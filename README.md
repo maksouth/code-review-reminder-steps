@@ -1,5 +1,11 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 3
+Install moment-timezone
+```zsh
+ npm install moment-timezone
+```
+
 ## Step 2
 Export new environment variable
 ```zsh

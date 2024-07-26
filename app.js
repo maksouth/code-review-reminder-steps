@@ -1,4 +1,5 @@
 const { App, AwsLambdaReceiver } = require('@slack/bolt');
+const { handlePostedPRLink, VCS_URL_DOMAINS } = require('./src/reminderMessagesService');
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -39,6 +40,13 @@ app.action('button_click', async ({ body, ack, say }) => {
     // Acknowledge the action
     await ack();
     await say(`<@${body.user.id}> clicked the button`);
+});
+
+VCS_URL_DOMAINS.forEach(domain => {
+    app.message(domain, async ({message, say, client}) => {
+        console.log('MESSAGE', message);
+        await handlePostedPRLink(message, client, say);
+    });
 });
 
 module.exports.handler = async (event, context, callback) => {
