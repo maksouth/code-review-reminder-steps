@@ -1,9 +1,11 @@
 const moment = require('moment-timezone');
 
 const REMINDERS_COUNT = 10;
-const REMINDER_FREQUENCY_MINUTES = 2;
+const REMINDER_FREQUENCY_MINUTES = 10;
 const VCS_URLS_PATTERN = /bitbucket|github|gitlab|azure|visualstudio/;
 const VCS_URL_DOMAINS = ['bitbucket', 'github', 'gitlab', 'azure', 'visualstudio'];
+const ACTION_ID_IGNORE_PR = "action_ignore_pr";
+const REMINDER_PROMPT = "Gentle reminder to review pull request";
 
 const handlePostedPRLink = async (message, client, say) => {
     console.log('CODE REVIEW MESSAGE', message);
@@ -19,7 +21,24 @@ const handlePostedPRLink = async (message, client, say) => {
 
 const preparePRAcknowledgeMessage = (message) => {
     return {
-        text: `:wave: <@${message.user}> I'll remind the team about link to PR every 2 minutes.`,
+        blocks: [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": `:wave: <@${message.user}> I'll remind the team about link to PR every 10 minutes, until someone marks message with :white_check_mark:.`
+                },
+                "accessory": {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Ignore this PR"
+                    },
+                    "action_id": ACTION_ID_IGNORE_PR
+                }
+            }
+        ],
+        text: `:wave: <@${message.user}> I'll remind the team about link to PR every 10 minutes, until someone marks message with :white_check_mark:.`,
         thread_ts: message.ts,
         channel: message.channel
     }
@@ -29,21 +48,23 @@ const scheduleReminderMessages = async (message, client) => {
     const reminderTimestamps = generateTimestamps();
     console.log('REMINDER TIMESTAMPS', reminderTimestamps);
 
-    const extractedURL = message.blocks[0]?.elements[0]?.elements
-        ?.find(e => e.type === 'link' && VCS_URLS_PATTERN.test(e.url))
-        ?.url;
-    console.log('EXTRACTED URL', extractedURL);
+    const pullRequestUrl = findPullRequestUrl(message);
+    console.log('EXTRACTED URL', pullRequestUrl);
 
     const scheduleMessagePromises = reminderTimestamps.map((post_at) => {
-        client.chat.scheduleMessage({
-            text: `Gentle reminder to review pull request\n${extractedURL}`,
+        return client.chat.scheduleMessage({
+            text: `${REMINDER_PROMPT}\n${pullRequestUrl}`,
             channel: message.channel,
             post_at: post_at,
             reply_broadcast: true,
             thread_ts: message.ts
         });
     });
-    await Promise.all(scheduleMessagePromises);
+    await Promise.all(scheduleMessagePromises)
+        .then(responses => {
+            const scheduledMessageIds = responses.map(response => response.scheduled_message_id);
+            console.log('Scheduled message ids', scheduledMessageIds);
+        });
 }
 
 const generateTimestamps = () => {
@@ -54,7 +75,50 @@ const generateTimestamps = () => {
     return timestamps;
 }
 
+const deleteScheduledMessages = async (client, parentMessage, channelId) => {
+    const pullRequestUrl = findPullRequestUrl(parentMessage);
+    const reminderMessageIds = await findScheduledReminderMessageIds(client, pullRequestUrl);
+    console.log('Reminder message ids', reminderMessageIds);
+
+    return Promise
+        .all(reminderMessageIds.map(async (id) => {
+            return client.chat.deleteScheduledMessage({
+                channel: channelId,
+                scheduled_message_id: id
+            });
+        }))
+        .catch(e => {
+            console.error('Error deleting scheduled messages', e);
+        });
+}
+
+const findPullRequestUrl = (message) => {
+    return message.blocks[0]?.elements[0]?.elements
+        ?.find(e => e.type === 'link' && VCS_URLS_PATTERN.test(e.url))
+        ?.url;
+}
+
+const findScheduledReminderMessageIds = async (client, pullRequestUrl) => {
+    return client.chat.scheduledMessages.list().then((response) =>
+        response.scheduled_messages
+            .filter(message => message.text.includes(pullRequestUrl))
+            .map(message => message.id));
+}
+
+const findMessageById = async (client, channelId, id) => {
+    return client.conversations.history({
+        channel: channelId,
+        latest: id,
+        inclusive: true,
+        limit: 1
+    }).then((response) => response.messages[0]);
+}
+
 module.exports = {
+    deleteScheduledMessages,
+    findMessageById,
     handlePostedPRLink,
-    VCS_URL_DOMAINS
+    ACTION_ID_IGNORE_PR,
+    VCS_URL_DOMAINS,
+    VCS_URLS_PATTERN
 };

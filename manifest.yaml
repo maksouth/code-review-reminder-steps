@@ -10,11 +10,13 @@ oauth_config:
       - chat:write
       - channels:history
       - links:read
+      - reactions:read
 settings:
   event_subscriptions:
     request_url: https://<your-url>.amazonaws.com/dev/slack/events
     bot_events:
       - message.channels
+      - reaction_added
   interactivity:
     is_enabled: true
     request_url: https://<your-url>.amazonaws.com/dev/slack/events
