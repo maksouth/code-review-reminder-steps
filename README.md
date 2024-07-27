@@ -1,5 +1,18 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 4
+How to search message in conversation
+https://api.slack.com/methods/conversations.history
+
+List schedule messages in chat
+https://api.slack.com/methods/chat.scheduledMessages.list
+
+Delete schedule message
+https://api.slack.com/methods/chat.deleteScheduledMessage
+
+Event when user adds reaction to message
+https://api.slack.com/events/reaction_added
+
 ## Step 3
 Install moment-timezone
 ```zsh
