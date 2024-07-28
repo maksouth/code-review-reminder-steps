@@ -1,11 +1,13 @@
 service: code-review-reminder-course-dev
 frameworkVersion: '3'
+useDotenv: true
 provider:
   name: aws
   runtime: nodejs20.x
   environment:
     SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
     SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+    STAGE: ${opt:stage, self:custom.defaultStage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -24,6 +26,8 @@ functions:
       - http:
           path: slack/events
           method: post
+custom:
+  defaultStage: dev
 resources:
   Resources: # CloudFormation template syntax from here on.
     codeReviewReminderBotConfigsTable:
@@ -45,3 +49,4 @@ resources:
           WriteCapacityUnits: 2
 plugins:
   - serverless-offline
+  - serverless-dotenv-plugin

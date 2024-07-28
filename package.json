@@ -15,6 +15,7 @@
     "moment-timezone": "^0.5.45"
   },
   "devDependencies": {
+    "serverless-dotenv-plugin": "^6.0.0",
     "serverless-offline": "^13.6.0"
   }
 }

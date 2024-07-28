@@ -4,12 +4,13 @@ const {PutCommand, DynamoDBDocumentClient, GetCommand} = require("@aws-sdk/lib-d
 let client;
 const getClient = () => {
     if (!client) {
-        // TODO comment before deployment
-        client = new DynamoDBClient({
-            endpoint: "http://127.0.0.1:8000",
-        });
-        // TODO uncomment before deployment
-        // client = new DynamoDBClient({region: 'us-east-1'});
+        if (process.env.STAGE === 'dev-local') {
+            client = new DynamoDBClient({
+                endpoint: "http://127.0.0.1:8000",
+            });
+        } else {
+            client = new DynamoDBClient({region: 'us-east-1'});
+        }
     }
     return client;
 };
