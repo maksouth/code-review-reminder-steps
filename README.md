@@ -1,5 +1,28 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 7 - make separate environment for local and production applications
+
+Important
+New commands with stage (environments) name
+- Start Serverless offline - local bot instance for testing 
+```zsh
+serverless offline --noPrependStageInUrl --stage dev-local
+```
+
+- Deploy app to AWS Lambda - production bot instance
+```zsh
+serverless deploy --stage dev
+```
+
+Install dotenv plugin to read environment variables from .env file, not from system environment variables
+```zsh
+serverless plugin install -n serverless-dotenv-plugin
+```
+
+Populate .env file with environment variables:
+- .env.dev - Production bot instance "CodeReviewReminder"
+- .env.local - Local bot instance "CodeReviewReminderDev"
+
 ## Step 6 - save config to DynamoDB
 
 Download DynamoDB local
