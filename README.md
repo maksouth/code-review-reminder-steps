@@ -1,5 +1,19 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 5 - user onboarding
+
+Block Kit Builder - UI constructor
+https://app.slack.com/block-kit-builder
+
+Event when user or bot joined channel
+https://api.slack.com/events/member_joined_channel
+
+Event when user opens bot's App Home
+https://api.slack.com/events/app_home_opened
+
+API method to get bot auth data
+https://api.slack.com/methods/auth.test
+
 ## Step 4
 How to search message in conversation
 https://api.slack.com/methods/conversations.history

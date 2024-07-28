@@ -1,6 +1,10 @@
 display_information:
   name: CodeReviewReminderDev
 features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: false
+    messages_tab_read_only_enabled: true
   bot_user:
     display_name: CodeReviewReminderDev
     always_online: false
@@ -9,12 +13,15 @@ oauth_config:
     bot:
       - chat:write
       - channels:history
+      - channels:read
       - links:read
       - reactions:read
 settings:
   event_subscriptions:
     request_url: https://<your-url>.amazonaws.com/dev/slack/events
     bot_events:
+      - app_home_opened
+      - member_joined_channel
       - message.channels
       - reaction_added
   interactivity:
