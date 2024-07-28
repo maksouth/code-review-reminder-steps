@@ -6,6 +6,8 @@ const {
     VCS_URLS_PATTERN,
     VCS_URL_DOMAINS, findMessageById
 } = require('./src/reminderMessagesService');
+const {createHomeAppViewWithReminderMinutesSelector, ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY} = require("./src/homeViewService");
+const {createJoinChannelMessage} = require("./src/joinChannelViewService");
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -88,6 +90,35 @@ app.event('reaction_added', async ({event, client, logger, say}) => {
             channel: event.item.channel
         });
         await deleteScheduledMessages(client, parentMessage, event.item.channel);
+    }
+});
+
+app.event('app_home_opened', async ({event, client, logger, say}) => {
+    console.log('App home: opened', event);
+
+    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(event.user, null, false));
+});
+
+app.action(ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY, async ({body, ack, client}) => {
+    await ack();
+    const selectedReminderPeriod = body.actions[0].selected_option.value;
+    console.log('App home: selected remindersMinutes', selectedReminderPeriod);
+
+    const userId = body.user.id;
+
+    // Update the Home tab view
+    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(userId, selectedReminderPeriod, true));
+});
+
+app.event('member_joined_channel', async ({event, client, logger, say}) => {
+    console.log('Member join channel', event);
+    const botUser = await client.auth.test();
+
+    const joinedUserId = event.user;
+    const botUserId = botUser.user_id;
+
+    if (joinedUserId === botUserId) {
+        await say(createJoinChannelMessage());
     }
 });
 
