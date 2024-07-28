@@ -1,3 +1,5 @@
+const {putItem, getItemByCompositeKey} = require("./dynamoDB.js");
+
 const TIME_OPTIONS_MAP = {
     '1': '1 minute',
     '15': '15 minutes',
@@ -15,6 +17,45 @@ const TIME_OPTIONS_MAP = {
     '1440': '24 hours'
 };
 
+const TABLE_NAME = 'codeReviewReminderBotConfigs';
+const DEFAULT_FREQUENCY = '120';
+const RECORD_TYPE_GLOBAL = 'global';
+
+const DEFAULT_CONFIG = {
+    reminder_frequency_minutes: DEFAULT_FREQUENCY,
+    record_type: RECORD_TYPE_GLOBAL
+};
+
+const getConfig = async (teamId = null) => {
+    console.log('[DYNAMODB] Get config', teamId);
+
+    return getItemByCompositeKey(
+        TABLE_NAME,
+        {
+            team_id: teamId,
+            record_type: RECORD_TYPE_GLOBAL
+        }).then((data) => {
+            return {
+                team_id: teamId,
+                ...DEFAULT_CONFIG,
+                ...data.Item
+            };
+        });
+}
+
+const updateConfigReminderFrequencyMinutes = async (teamId, reminderFrequencyMinutes) => {
+    console.log('[DYNAMODB] Update config: reminder frequency', teamId, reminderFrequencyMinutes);
+    const config = await getConfig(teamId);
+    const updatedConfig = {
+        ...config,
+        last_updated: new Date().toISOString(),
+        reminder_frequency_minutes: reminderFrequencyMinutes,
+    };
+    return putItem(TABLE_NAME, updatedConfig);
+}
+
 module.exports = {
+    getConfig,
+    updateConfigReminderFrequencyMinutes,
     TIME_OPTIONS_MAP
 };

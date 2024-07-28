@@ -1,5 +1,39 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 6 - save config to DynamoDB
+
+Download DynamoDB local
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html
+
+Start DynamoDB local instance from folder where you downloaded DynamoDB local
+```zsh
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
+```
+
+Install AWS NoSQL Workbench
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/workbench.settingup.html
+
+Install official DynamoDB client library. Reference: https://www.npmjs.com/package/@aws-sdk/client-dynamodb
+```zsh
+npm install @aws-sdk/client-dynamodb
+```
+
+Install official DynamoDB library with handy data models. Reference: https://www.npmjs.com/package/@aws-sdk/lib-dynamodb
+```zsh
+npm install @aws-sdk/lib-dynamodb
+```
+
+Start DynamoDB locally
+```zsh
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
+```
+
+Get user info by user ID
+https://api.slack.com/methods/users.info
+
+New scope required to get user info
+https://api.slack.com/scopes/users:read
+
 ## Step 5 - user onboarding
 
 Block Kit Builder - UI constructor

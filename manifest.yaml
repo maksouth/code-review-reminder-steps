@@ -16,6 +16,7 @@ oauth_config:
       - channels:read
       - links:read
       - reactions:read
+      - users:read
 settings:
   event_subscriptions:
     request_url: https://<your-url>.amazonaws.com/dev/slack/events
