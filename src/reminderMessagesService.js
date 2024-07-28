@@ -1,7 +1,7 @@
 const moment = require('moment-timezone');
+const {getConfig, TIME_OPTIONS_MAP} = require("./reminderConfigurationService");
 
 const REMINDERS_COUNT = 10;
-const REMINDER_FREQUENCY_MINUTES = 10;
 const VCS_URLS_PATTERN = /bitbucket|github|gitlab|azure|visualstudio/;
 const VCS_URL_DOMAINS = ['bitbucket', 'github', 'gitlab', 'azure', 'visualstudio'];
 const ACTION_ID_IGNORE_PR = "action_ignore_pr";
@@ -14,19 +14,21 @@ const handlePostedPRLink = async (message, client, say) => {
         return;
     }
 
-    say(preparePRAcknowledgeMessage(message));
+    const config = await getConfig(message.team);
 
-    return scheduleReminderMessages(message, client);
+    say(preparePRAcknowledgeMessage(message, config.reminder_frequency_minutes));
+
+    return scheduleReminderMessages(message, client, config.reminder_frequency_minutes);
 };
 
-const preparePRAcknowledgeMessage = (message) => {
+const preparePRAcknowledgeMessage = (message, reminderFrequencyMinutes) => {
     return {
         blocks: [
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": `:wave: <@${message.user}> I'll remind the team about link to PR every 10 minutes, until someone marks message with :white_check_mark:.`
+                    "text": `:wave: <@${message.user}> I'll remind the team about link to PR every ${TIME_OPTIONS_MAP[reminderFrequencyMinutes]}, until someone marks message with :white_check_mark:.`
                 },
                 "accessory": {
                     "type": "button",
@@ -38,14 +40,14 @@ const preparePRAcknowledgeMessage = (message) => {
                 }
             }
         ],
-        text: `:wave: <@${message.user}> I'll remind the team about link to PR every 10 minutes, until someone marks message with :white_check_mark:.`,
+        text: `:wave: <@${message.user}> I'll remind the team about link to PR every ${TIME_OPTIONS_MAP[reminderFrequencyMinutes]}, until someone marks message with :white_check_mark:.`,
         thread_ts: message.ts,
         channel: message.channel
     }
 };
 
-const scheduleReminderMessages = async (message, client) => {
-    const reminderTimestamps = generateTimestamps();
+const scheduleReminderMessages = async (message, client, reminderFrequencyMinutes) => {
+    const reminderTimestamps = generateTimestamps(reminderFrequencyMinutes);
     console.log('REMINDER TIMESTAMPS', reminderTimestamps);
 
     const pullRequestUrl = findPullRequestUrl(message);
@@ -67,10 +69,10 @@ const scheduleReminderMessages = async (message, client) => {
         });
 }
 
-const generateTimestamps = () => {
+const generateTimestamps = (reminderFrequencyMinutes) => {
     const timestamps = [];
     for (let i = 1; i <= REMINDERS_COUNT; i++) {
-        timestamps.push(moment().add(i * REMINDER_FREQUENCY_MINUTES, 'minutes').unix());
+        timestamps.push(moment().add(i * reminderFrequencyMinutes, 'minutes').unix());
     }
     return timestamps;
 }

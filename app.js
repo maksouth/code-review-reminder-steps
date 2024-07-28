@@ -8,6 +8,7 @@ const {
 } = require('./src/reminderMessagesService');
 const {createHomeAppViewWithReminderMinutesSelector, ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY} = require("./src/homeViewService");
 const {createJoinChannelMessage} = require("./src/joinChannelViewService");
+const {getConfig, updateConfigReminderFrequencyMinutes} = require("./src/reminderConfigurationService");
 
 const awsLambdaReceiver = new AwsLambdaReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -96,7 +97,12 @@ app.event('reaction_added', async ({event, client, logger, say}) => {
 app.event('app_home_opened', async ({event, client, logger, say}) => {
     console.log('App home: opened', event);
 
-    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(event.user, null, false));
+    const userProfile = await client.users.info({user: event.user, include_locale: true});
+    const user = userProfile.user;
+
+    const config = await getConfig(user.team_id);
+
+    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(event.user, config.reminder_frequency_minutes, false));
 });
 
 app.action(ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY, async ({body, ack, client}) => {
@@ -108,6 +114,8 @@ app.action(ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY, async ({body, ack,
 
     // Update the Home tab view
     await client.views.publish(createHomeAppViewWithReminderMinutesSelector(userId, selectedReminderPeriod, true));
+
+    await updateConfigReminderFrequencyMinutes(body.team.id, selectedReminderPeriod);
 });
 
 app.event('member_joined_channel', async ({event, client, logger, say}) => {

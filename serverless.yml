@@ -6,6 +6,17 @@ provider:
   environment:
     SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
     SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": [ "codeReviewReminderBotConfigsTable", "Arn" ] }
 functions:
   slack:
     handler: app.handler
@@ -13,5 +24,24 @@ functions:
       - http:
           path: slack/events
           method: post
+resources:
+  Resources: # CloudFormation template syntax from here on.
+    codeReviewReminderBotConfigsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: codeReviewReminderBotConfigs
+        AttributeDefinitions:
+          - AttributeName: team_id
+            AttributeType: S
+          - AttributeName: record_type
+            AttributeType: S
+        KeySchema:
+          - AttributeName: team_id
+            KeyType: HASH
+          - AttributeName: record_type
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
 plugins:
   - serverless-offline
