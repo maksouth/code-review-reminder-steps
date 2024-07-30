@@ -1,5 +1,39 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 8 - public installation
+
+Install Serverless-http library to wrap Express app into Serverless app. Reference: https://www.npmjs.com/package/serverless-http
+```zsh
+npm install serverless-http
+```
+
+Add 2 new environment variables to .env files
+They are located on App Settings page -> Basic Information -> App Credentials 
+```zsh
+SLACK_CLIENT_ID=
+SLACK_CLIENT_SECRET=
+```
+Remove SLACK_BOT_TOKEN from .env files
+
+Add 2 new HTTP handlers for slack app installation and OAuth flow in serverless.yml
+
+Define new AWS DynamoDB table in serverless.yml to store installation data
+
+Add Redirect URL under Slack Settings -> OAuth & Permissions -> Redirect URLs
+For local development app, use ngrok URL
+```zsh
+https://<your-ngrok-id>.ngrok.io/slack/oauth_redirect
+```
+For production app, use AWS API Gateway URL
+```zsh
+https://<your-api-id>.execute-api.<your-region>.amazonaws.com/dev/slack/oauth_redirect
+```
+
+To install app to workspace, open URL in browser
+```zsh
+https://<your-api-id>.execute-api.<your-region>.amazonaws.com/dev/slack/install
+```
+
 ## Step 7 - make separate environment for local and production applications
 
 Important

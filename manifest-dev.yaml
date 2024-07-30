@@ -9,6 +9,8 @@ features:
     display_name: CodeReviewReminder
     always_online: false
 oauth_config:
+  redirect_urls:
+    - https://<your-url>.amazonaws.com/dev/slack/oauth_redirect
   scopes:
     bot:
       - chat:write
