@@ -9,6 +9,8 @@ features:
     display_name: CodeReviewReminderLocal
     always_online: false
 oauth_config:
+  redirect_urls:
+    - https://<your-url>.ngrok-free.app/slack/oauth_redirect
   scopes:
     bot:
       - chat:write

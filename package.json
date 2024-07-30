@@ -12,7 +12,8 @@
     "@aws-sdk/client-dynamodb": "^3.620.0",
     "@aws-sdk/lib-dynamodb": "^3.620.0",
     "@slack/bolt": "^3.19.0",
-    "moment-timezone": "^0.5.45"
+    "moment-timezone": "^0.5.45",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "serverless-dotenv-plugin": "^6.0.0",

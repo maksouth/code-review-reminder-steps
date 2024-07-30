@@ -6,7 +6,8 @@ provider:
   runtime: nodejs20.x
   environment:
     SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
-    SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+    SLACK_CLIENT_SECRET: ${env:SLACK_CLIENT_SECRET}
+    SLACK_CLIENT_ID: ${env:SLACK_CLIENT_ID}
     STAGE: ${opt:stage, self:custom.defaultStage}
   iamRoleStatements:
     - Effect: Allow
@@ -19,6 +20,7 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - { "Fn::GetAtt": [ "codeReviewReminderBotConfigsTable", "Arn" ] }
+        - { "Fn::GetAtt": [ "codeReviewReminderBotSlackInstallsTable", "Arn" ] }
 functions:
   slack:
     handler: app.handler
@@ -26,6 +28,12 @@ functions:
       - http:
           path: slack/events
           method: post
+      - http:
+          method: get
+          path: /slack/install
+      - http:
+          method: get
+          path: /slack/oauth_redirect
 custom:
   defaultStage: dev
 resources:
@@ -43,6 +51,23 @@ resources:
           - AttributeName: team_id
             KeyType: HASH
           - AttributeName: record_type
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
+    codeReviewReminderBotSlackInstallsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: codeReviewReminderBotSlackInstalls
+        AttributeDefinitions:
+          - AttributeName: team_or_enterprise_id
+            AttributeType: S
+          - AttributeName: installation_type
+            AttributeType: S
+        KeySchema:
+          - AttributeName: installation_type
+            KeyType: HASH
+          - AttributeName: team_or_enterprise_id
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 2

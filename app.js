@@ -1,24 +1,48 @@
-const { App, AwsLambdaReceiver } = require('@slack/bolt');
+const { App, ExpressReceiver } = require("@slack/bolt");
+const { createDynamoDBInstallationStore } = require("./src/dynamoDBInstallationStore");
 const {
     deleteScheduledMessages,
     handlePostedPRLink,
     ACTION_ID_IGNORE_PR,
     VCS_URLS_PATTERN,
     VCS_URL_DOMAINS, findMessageById
-} = require('./src/reminderMessagesService');
+} = require("./src/reminderMessagesService");
 const {createHomeAppViewWithReminderMinutesSelector, ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY} = require("./src/homeViewService");
 const {createJoinChannelMessage} = require("./src/joinChannelViewService");
 const {getConfig, updateConfigReminderFrequencyMinutes} = require("./src/reminderConfigurationService");
 
-const awsLambdaReceiver = new AwsLambdaReceiver({
+const expressReceiver = new ExpressReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
+    clientId: process.env.SLACK_CLIENT_ID,
+    clientSecret: process.env.SLACK_CLIENT_SECRET,
+    stateSecret: 'my-state-secret',
+    scopes: [
+        'chat:write',
+        'channels:history',
+        'channels:read',
+        'links:read',
+        'reactions:read',
+        'users:read'
+    ],
+    processBeforeResponse: true,
+    installationStore: createDynamoDBInstallationStore(),
+    installerOptions: {
+        directInstall: true,
+        legacyStateVerification: true,
+    }
 });
 
+const createOAuthApp = () => {
+    const app = new App({
+        receiver: expressReceiver,
+        processBeforeResponse: true,
+    });
+
+    return app;
+}
+
 // Initializes your app with your bot token and app token
-const app = new App({
-    token: process.env.SLACK_BOT_TOKEN,
-    receiver: awsLambdaReceiver,
-});
+const app = createOAuthApp();
 
 // Listens to incoming messages that contain "hello"
 app.message('hello', async ({ message, say }) => {
@@ -130,7 +154,4 @@ app.event('member_joined_channel', async ({event, client, logger, say}) => {
     }
 });
 
-module.exports.handler = async (event, context, callback) => {
-    const handler = await awsLambdaReceiver.start();
-    return handler(event, context, callback);
-}
+module.exports.handler = require('serverless-http')(expressReceiver.app);
