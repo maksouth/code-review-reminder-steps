@@ -8,6 +8,8 @@ provider:
     SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
     SLACK_CLIENT_SECRET: ${env:SLACK_CLIENT_SECRET}
     SLACK_CLIENT_ID: ${env:SLACK_CLIENT_ID}
+    PADDLE_API_KEY: ${env:PADDLE_API_KEY}
+    PADDLE_WEBHOOK_SECRET_KEY: ${env:PADDLE_WEBHOOK_SECRET_KEY}
     STAGE: ${opt:stage, self:custom.defaultStage}
   iamRoleStatements:
     - Effect: Allow
@@ -34,6 +36,12 @@ functions:
       - http:
           method: get
           path: /slack/oauth_redirect
+  paddle:
+    handler: app.paddleHandler
+    events:
+      - http:
+          path: paddle/webhooks
+          method: post
 custom:
   defaultStage: dev
 resources:

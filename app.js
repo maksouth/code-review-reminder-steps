@@ -9,6 +9,7 @@ const {
 } = require("./src/reminderMessagesService");
 const {createHomeAppViewWithReminderMinutesSelector, ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY} = require("./src/homeViewService");
 const {createJoinChannelMessage} = require("./src/joinChannelViewService");
+const {paddleHandler} = require("./src/paddle/appPaddle");
 const {getConfig, updateConfigReminderFrequencyMinutes} = require("./src/reminderConfigurationService");
 
 const expressReceiver = new ExpressReceiver({
@@ -155,3 +156,4 @@ app.event('member_joined_channel', async ({event, client, logger, say}) => {
 });
 
 module.exports.handler = require('serverless-http')(expressReceiver.app);
+module.exports.paddleHandler = paddleHandler;
