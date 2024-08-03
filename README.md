@@ -1,5 +1,35 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 9 - handle Paddle payment subscription events
+
+Prerequisites:
+- Create Paddle account
+- Create products and price plans in Paddle
+- Configure checkout form on the website
+
+Install Paddle SDK to handle subscription events. Reference: https://github.com/PaddleHQ/paddle-node-sdk
+
+```zsh
+npm install @paddle/paddle-node-sdk
+```
+
+Add new HTTP handler for Paddle webhook events in serverless.yml
+
+Add new environment variables to .env files
+```zsh
+PADDLE_API_KEY=
+PADDLE_WEBHOOK_SECRET_KEY=
+```
+
+Add new webhook URL under Paddle Vendor Dashboard -> Developer Tools -> Notifications
+```zsh
+https://<your-ngrok-id>.ngrok-free.app/paddle/webhooks
+```
+
+Go to website pricing page and make a subscription using checkout form
+
+Check logs locally and verify that Paddle webhook events are received by the app
+
 ## Step 8 - public installation
 
 Install Serverless-http library to wrap Express app into Serverless app. Reference: https://www.npmjs.com/package/serverless-http
