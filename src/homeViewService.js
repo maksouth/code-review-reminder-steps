@@ -2,7 +2,7 @@ const {TIME_OPTIONS_MAP} = require("./reminderConfigurationService");
 
 const ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY = 'action_config_global_select_reminder_minutes';
 
-const createHomeAppViewWithReminderMinutesSelector = (userId, reminderFrequencyMinutes, showToastReminderFrequencyMinutes) => {
+const createHomeAppViewWithReminderMinutesSelector = (userId, reminderFrequencyMinutes, showToastReminderFrequencyMinutes, isSubscriptionActive) => {
     const blocks = [
         {
             "type": "section",
@@ -72,6 +72,13 @@ const createHomeAppViewWithReminderMinutesSelector = (userId, reminderFrequencyM
             "text": {
                 "type": "mrkdwn",
                 "text": "➕ To start tracking your team's PRs, *add me to a channel* and I'll introduce myself. I'm usually added to a team or project channel. Type `/invite @CodeReviewReminderDev` from the channel"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "📅 is subscription active: " + (isSubscriptionActive ? "Yes" : "No")
             }
         },
         {

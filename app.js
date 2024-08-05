@@ -10,7 +10,8 @@ const {
 const {createHomeAppViewWithReminderMinutesSelector, ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY} = require("./src/homeViewService");
 const {createJoinChannelMessage} = require("./src/joinChannelViewService");
 const {paddleHandler} = require("./src/paddle/appPaddle");
-const {getConfig, updateConfigReminderFrequencyMinutes} = require("./src/reminderConfigurationService");
+const {getConfig, updateConfigReminderFrequencyMinutes, checkIsSubscriptionActive} = require("./src/reminderConfigurationService");
+const {tryMatchTeamWithSubscription} = require("./src/paddle/paddleSubscriptionService");
 
 const expressReceiver = new ExpressReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -23,7 +24,8 @@ const expressReceiver = new ExpressReceiver({
         'channels:read',
         'links:read',
         'reactions:read',
-        'users:read'
+        'users:read',
+        'users:read.email',
     ],
     processBeforeResponse: true,
     installationStore: createDynamoDBInstallationStore(),
@@ -127,7 +129,13 @@ app.event('app_home_opened', async ({event, client, logger, say}) => {
 
     const config = await getConfig(user.team_id);
 
-    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(event.user, config.reminder_frequency_minutes, false));
+    let isSubscriptionActive = checkIsSubscriptionActive(config);
+
+    if (!isSubscriptionActive) {
+        isSubscriptionActive = await tryMatchTeamWithSubscription(user.team_id, client);
+    }
+
+    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(event.user, config.reminder_frequency_minutes, false, isSubscriptionActive));
 });
 
 app.action(ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY, async ({body, ack, client}) => {
@@ -137,8 +145,10 @@ app.action(ACTION_ID_CONFIG_GLOBAL_SELECT_REMINDER_FREQUENCY, async ({body, ack,
 
     const userId = body.user.id;
 
+    const config = await getConfig(body.team.id);
+
     // Update the Home tab view
-    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(userId, selectedReminderPeriod, true));
+    await client.views.publish(createHomeAppViewWithReminderMinutesSelector(userId, selectedReminderPeriod, true, checkIsSubscriptionActive(config)));
 
     await updateConfigReminderFrequencyMinutes(body.team.id, selectedReminderPeriod);
 });

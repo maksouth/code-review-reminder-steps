@@ -23,6 +23,7 @@ provider:
       Resource:
         - { "Fn::GetAtt": [ "codeReviewReminderBotConfigsTable", "Arn" ] }
         - { "Fn::GetAtt": [ "codeReviewReminderBotSlackInstallsTable", "Arn" ] }
+        - { "Fn::GetAtt": [ "codeReviewReminderBotSubscriptionsTable", "Arn" ] }
 functions:
   slack:
     handler: app.handler
@@ -77,6 +78,19 @@ resources:
             KeyType: HASH
           - AttributeName: team_or_enterprise_id
             KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
+    codeReviewReminderBotSubscriptionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: codeReviewReminderBotSubscriptions
+        AttributeDefinitions:
+          - AttributeName: paddle_customer_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: paddle_customer_id
+            KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2

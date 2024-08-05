@@ -1,5 +1,15 @@
 # Getting Started ⚡️ Bolt for JavaScript
 
+## Step 10 - add paid features to the Slack bot
+
+Define new DynamoDB table to store user subscription data
+
+New scope to find user by email:
+https://api.slack.com/scopes/users:read.email
+
+Lookup user info by user email
+https://api.slack.com/methods/users.lookupByEmail
+
 ## Step 9 - handle Paddle payment subscription events
 
 Prerequisites:

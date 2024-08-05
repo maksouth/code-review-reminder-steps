@@ -1,5 +1,5 @@
 const moment = require('moment-timezone');
-const {getConfig, TIME_OPTIONS_MAP} = require("./reminderConfigurationService");
+const {getConfig, TIME_OPTIONS_MAP, checkIsSubscriptionActive} = require("./reminderConfigurationService");
 
 const REMINDERS_COUNT = 10;
 const VCS_URLS_PATTERN = /bitbucket|github|gitlab|azure|visualstudio/;
@@ -16,9 +16,12 @@ const handlePostedPRLink = async (message, client, say) => {
 
     const config = await getConfig(message.team);
 
-    say(preparePRAcknowledgeMessage(message, config.reminder_frequency_minutes));
-
-    return scheduleReminderMessages(message, client, config.reminder_frequency_minutes);
+    if (checkIsSubscriptionActive(config)) {
+        say(preparePRAcknowledgeMessage(message, config.reminder_frequency_minutes));
+        return scheduleReminderMessages(message, client, config.reminder_frequency_minutes);
+    } else {
+        say(prepareSubscriptionRequiredMessage(message));
+    }
 };
 
 const preparePRAcknowledgeMessage = (message, reminderFrequencyMinutes) => {
@@ -45,6 +48,23 @@ const preparePRAcknowledgeMessage = (message, reminderFrequencyMinutes) => {
         channel: message.channel
     }
 };
+
+const prepareSubscriptionRequiredMessage = (message) => {
+    return {
+        blocks: [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": `:wave: <@${message.user}> You need to subscribe to use reminders feature.`
+                }
+            }
+        ],
+        text: `:wave: <@${message.user}> You need to subscribe to use reminders feature.`,
+        thread_ts: message.ts,
+        channel: message.channel
+    }
+}
 
 const scheduleReminderMessages = async (message, client, reminderFrequencyMinutes) => {
     const reminderTimestamps = generateTimestamps(reminderFrequencyMinutes);

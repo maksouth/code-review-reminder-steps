@@ -1,5 +1,5 @@
 const {DynamoDBClient} = require("@aws-sdk/client-dynamodb");
-const {PutCommand, DynamoDBDocumentClient, GetCommand, DeleteCommand} = require("@aws-sdk/lib-dynamodb");
+const {PutCommand, DynamoDBDocumentClient, GetCommand, DeleteCommand, ScanCommand} = require("@aws-sdk/lib-dynamodb");
 
 let client;
 const getClient = () => {
@@ -44,6 +44,13 @@ const deleteItemsByCompositeKey = async (tableName, key) => {
     }));
 }
 
+const getAllItems = async (tableName) => {
+    return getDocClient().send(new ScanCommand({
+        TableName: tableName
+    }));
+}
+
 exports.putItem = putItem;
 exports.getItemByCompositeKey = getItemByCompositeKey;
 exports.deleteItemsByCompositeKey = deleteItemsByCompositeKey;
+exports.getAllItems = getAllItems;

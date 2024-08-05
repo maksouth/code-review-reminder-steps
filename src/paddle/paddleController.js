@@ -1,4 +1,6 @@
 const {EventName} = require("@paddle/paddle-node-sdk");
+const {createSubscription, updateSubscription, getSubscriptionByCustomerId} = require("./paddleSubscriptionRepository");
+const {updateConfigPaddleCustomerId} = require("../reminderConfigurationService");
 
 const handlePaddleEvent = async (eventData) => {
     switch (eventData.eventType) {
@@ -48,6 +50,10 @@ const handleCustomerCreated = async (eventData) => {
             "marketingConsent": true
         }
     }
+
+    return createSubscription(eventData.data.id, {
+        paddle_customer_email: eventData.data.email,
+    });
 }
 
 const handleAddressUpdated = async (eventData) => {
@@ -249,6 +255,10 @@ const handleTransactionCompleted = async (eventData) => {
             "subscriptionId": "sub_01j098v8sar4r0jxh5dqkvb6vd"
         }
     }
+
+    return updateSubscription(eventData.data.customerId, {
+        is_subscription_completed: true,
+    });
 }
 
 const handleSubscriptionCreated = async (eventData) => {
@@ -328,6 +338,16 @@ const handleSubscriptionCreated = async (eventData) => {
             }
         }
     }
+
+    return updateSubscription(eventData.data.customerId, {
+        paddle_subscription_id: eventData.data.id,
+        paddle_subscription_status: eventData.data.status,
+        paddle_subscription_updated_at: eventData.data.updatedAt,
+        paddle_subscription_currency_code: eventData.data.currencyCode,
+        paddle_subscription_collection_mode: eventData.data.collectionMode,
+        paddle_subscription_next_billed_at: eventData.data.nextBilledAt,
+        paddle_subscription: JSON.stringify(eventData.data)
+    });
 }
 
 const handleSubscriptionCanceled = async (eventData) => {
@@ -403,6 +423,22 @@ const handleSubscriptionCanceled = async (eventData) => {
             "currentBillingPeriod": null
         }
     }
+
+    const subscription = await getSubscriptionByCustomerId(eventData.data.customerId);
+    return updateSubscription(eventData.data.customerId, {
+        paddle_subscription_status: eventData.data.status,
+        paddle_subscription_cancelled_at: eventData.data.canceledAt,
+        paddle_subscription_updated_at: eventData.data.updatedAt,
+        paddle_subscription: JSON.stringify(eventData.data)
+    }).then(() => {
+        if (subscription.slack_team_id) {
+            updateConfigPaddleCustomerId(
+                subscription.slack_team_id,
+                eventData.data.customerId,
+                false,
+            );
+        }
+    });
 }
 
 module.exports.handlePaddleEvent = handlePaddleEvent;
