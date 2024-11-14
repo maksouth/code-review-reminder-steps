@@ -1,4 +1,4 @@
-# Getting Started ⚡️ Bolt for JavaScript
+# Getting Started ⚡️ Bolt for JS
 > Slack app example from 📚 [Getting started with Bolt for JavaScript tutorial][1]
 
 ## Overview
