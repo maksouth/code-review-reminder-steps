@@ -8,7 +8,7 @@ responding to events and interactive buttons.
 
 ## Running locally
 
-### 0. Create a new Slack App.
+### 0. Create a new Slack App
 
 - Go to https://api.slack.com/apps
 - Click **Create App**
@@ -19,7 +19,7 @@ responding to events and interactive buttons.
 Once the app is created click **Install to Workspace**
 Then scroll down in Basic Info and click **Generate Token and Scopes** with both scopes
 
-### 1. Setup environment variables.
+### 1. Setup environment variables
 
 ```zsh
 # Replace with your bot and app token
