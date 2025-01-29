@@ -19,7 +19,7 @@ responding to events and interactive buttons.
 Once the app is created click **Install to Workspace**
 Then scroll down in Basic Info and click **Generate Token and Scopes** with both scopes
 
-### 1. Setup environment variables
+### 1. Setup environment variables.
 
 ```zsh
 # Replace with your bot and app token
