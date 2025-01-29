@@ -8,7 +8,7 @@ responding to events and interactive buttons.
 
 ## Running locally
 
-### 0. Create a new Slack App.
+### 0. Create a new Slack App
 
 - Go to https://api.slack.com/apps
 - Click **Create App**
