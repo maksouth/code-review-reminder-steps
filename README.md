@@ -27,7 +27,7 @@ export SLACK_BOT_TOKEN=<your-bot-token> # from the OAuth section
 export SLACK_APP_TOKEN=<your-app-level-token> # from the Basic Info App Token Section
 ```
 
-### 2. Setup your local project
+### 2. Setup your local project.
 
 ```zsh
 # Clone this project onto your machine
