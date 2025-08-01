@@ -40,7 +40,7 @@ cd bolt-js-getting-started-app/
 npm install
 ```
 
-### 3. Start servers
+### 3. Start servers.
 ```zsh
 npm run start
 ```
